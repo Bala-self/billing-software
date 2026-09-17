@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head><title>Test Auth</title></head>
+<body>
+<h2>BillPro Auth Test</h2>
+<div id="log"></div>
+<script>
+const API = "/api";
+async function test() {
+  const log = (msg) => {
+    document.getElementById('log').innerHTML += msg + "<br>";
+    console.log(msg);
+  };
+  try {
+    log("Testing health: " + API + "/health");
+    let res = await fetch(API + "/health");
+    let data = await res.json();
+    log("Health OK: " + JSON.stringify(data));
+
+    log("Testing login admin@billpro.com / Admin@123");
+    res = await fetch(API + "/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: "admin@billpro.com", password: "Admin@123" })
+    });
+    data = await res.json();
+    log("Login response: " + JSON.stringify(data).substring(0, 500));
+    
+    if (data.data && data.data.accessToken) {
+      const token = data.data.accessToken;
+      log("Token received: " + token.substring(0, 30) + "...");
+      
+      log("Testing /auth/me with token");
+      res = await fetch(API + "/auth/me", {
+        headers: { "Authorization": "Bearer " + token }
+      });
+      data = await res.json();
+      log("Me response: " + JSON.stringify(data).substring(0, 500));
+      
+      log("Testing dashboard");
+      res = await fetch(API + "/dashboard", {
+        headers: { "Authorization": "Bearer " + token }
+      });
+      data = await res.json();
+      log("Dashboard OK: sales=" + data.data?.today?.sales);
+      
+      log("✅ ALL AUTH TESTS PASSED - JWT works!");
+    } else {
+      log("❌ Login failed");
+    }
+  } catch (e) {
+    log("❌ Error: " + e.message);
+    log(e.stack);
+  }
+}
+test();
+</script>
+</body>
+</html>

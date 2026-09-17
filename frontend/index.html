@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/jpeg" href="/logo.jpg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Professional GST Billing, Inventory & Business Management Software" />
+    <title>BillPro — GST Billing & Inventory</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script>
+      // Capture E2B traffic token from URL, parent, or storage for secured sandbox
+      (function() {
+        try {
+          var params = new URLSearchParams(window.location.search);
+          var token = params.get('e2b-traffic-access-token') || params.get('token');
+          if (token) {
+            localStorage.setItem('e2b-traffic-access-token', token);
+            sessionStorage.setItem('e2b-traffic-access-token', token);
+          }
+          // Listen for token from parent (Arena preview)
+          window.addEventListener('message', function(e) {
+            try {
+              var data = typeof e.data === 'string' ? JSON.parse(e.data) : e.data;
+              if (data && (data.e2bTrafficToken || data.token || data['e2b-traffic-access-token'])) {
+                var t = data.e2bTrafficToken || data.token || data['e2b-traffic-access-token'];
+                localStorage.setItem('e2b-traffic-access-token', t);
+                sessionStorage.setItem('e2b-traffic-access-token', t);
+              }
+            } catch {}
+          });
+          // Also check if token is in hash
+          var hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ''));
+          var hashToken = hashParams.get('e2b-traffic-access-token');
+          if (hashToken) {
+            localStorage.setItem('e2b-traffic-access-token', hashToken);
+          }
+        } catch (e) {}
+      })();
+    </script>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
